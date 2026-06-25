@@ -18,6 +18,40 @@ El recorrido básico de la información es:
 
 La aplicación intenta identificar cada dispositivo usando la primera parte del tema. Por ejemplo, un mensaje con el tema `router01/status` se relaciona con el dispositivo `router01`.
 
+
+
+# 1. Instalar Mosquitto
+usar un paquete como apt pacman etc  mosquitto
+
+# 2. Revisar/editar la configuración
+sudo nano /etc/mosquitto/mosquitto.conf
+
+# 3. Ejecutar Mosquitto en modo verbose para depuración
+mosquitto -v
+
+# 4. Verificar el servicio
+ctl mosquitto
+# (posiblemente alias de: systemctl status mosquitto)
+
+# 5. Monitorear logs del servicio
+sudo journalctl -u mosquitto -f
+
+# 6. Verificar tráfico MQTT en el puerto 1883
+tcpdump -i any port 1883
+sudo tcpdump -i any port 1883
+
+# 7. Definir el broker MQTT
+export MQTT_HOST=localhost
+
+# 8. Suscribirse a todos los tópicos para validar mensajes
+mosquitto_sub -h localhost -t '#' -v
+
+
+
+Despues de la instalacion y verificar que recibimos logs poner el dashboard en marcha:
+
+
+
 ## ¿Qué muestra el panel?
 
 El panel permite consultar:
@@ -30,7 +64,9 @@ El panel permite consultar:
 - Datos de sistema como carga, memoria RAM y discos.
 - Historial reciente guardado en SQLite.
 
-También incluye búsquedas y una opción para pausar temporalmente la vista.
+
+incluir screenshots:
+img/mosquitto/*
 
 ## Partes principales
 
@@ -54,7 +90,7 @@ pip install -r requirements.txt
 Después se configura la dirección del broker y se inicia:
 
 ```bash
-export MQTT_HOST=10.10.65.42
+export MQTT_HOST=10.10.65.42 (or localhost this ip is the mosquitto host IP)
 python app.py
 ```
 
