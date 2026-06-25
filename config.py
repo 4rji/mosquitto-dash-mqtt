@@ -24,6 +24,7 @@ class Config:
     MQTT_TOPIC: str = os.getenv("MQTT_TOPIC", "#")
     MQTT_KEEPALIVE: int = int(os.getenv("MQTT_KEEPALIVE", "60"))
     MQTT_ENABLED: bool = _env_bool("MQTT_ENABLED", True)
+    SYSTEM_TOPIC_SUFFIX: str = os.getenv("SYSTEM_TOPIC_SUFFIX", "system")
 
     APP_HOST: str = os.getenv("APP_HOST", "0.0.0.0")
     APP_PORT: int = int(os.getenv("APP_PORT", "5000"))
@@ -33,4 +34,8 @@ class Config:
     MESSAGE_LIMIT: int = int(os.getenv("MESSAGE_LIMIT", "1000"))
     DEVICE_ONLINE_SECONDS: int = int(os.getenv("DEVICE_ONLINE_SECONDS", "60"))
     SOCKET_BATCH_INTERVAL: float = float(os.getenv("SOCKET_BATCH_INTERVAL", "0.05"))
+
+    LOG_PERSISTENCE_ENABLED: bool = _env_bool("LOG_PERSISTENCE_ENABLED", True)
+    LOG_DB_PATH: str = os.getenv("LOG_DB_PATH", "mqtt_dashboard.db")
+    LOG_RETENTION: int = int(os.getenv("LOG_RETENTION", "100000"))
 

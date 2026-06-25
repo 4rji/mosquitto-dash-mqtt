@@ -4,4 +4,7 @@ __pycache__/
 .pytest_cache/
 .env
 .DS_Store
+*.db
+*.db-wal
+*.db-shm
 

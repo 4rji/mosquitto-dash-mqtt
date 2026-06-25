@@ -39,9 +39,13 @@ Configuration is centralized in `config.py` and can be overridden with environme
 | `MQTT_USERNAME` | empty | Optional broker username |
 | `MQTT_PASSWORD` | empty | Optional broker password |
 | `MQTT_TOPIC` | `#` | Subscription filter |
+| `SYSTEM_TOPIC_SUFFIX` | `system` | Last topic segment identifying system telemetry (e.g. `router01/system`) |
 | `MQTT_KEEPALIVE` | `60` | MQTT keepalive in seconds |
 | `MESSAGE_LIMIT` | `1000` | Maximum recent messages retained |
 | `DEVICE_ONLINE_SECONDS` | `60` | Recent-activity window for online state |
+| `LOG_PERSISTENCE_ENABLED` | `true` | Persist every message to SQLite and reload on startup |
+| `LOG_DB_PATH` | `mqtt_dashboard.db` | SQLite database file path |
+| `LOG_RETENTION` | `100000` | Maximum messages retained in SQLite (oldest pruned) |
 | `APP_HOST` | `0.0.0.0` | Web server bind address |
 | `APP_PORT` | `5000` | Web server port |
 | `APP_DEBUG` | `false` | Flask debug mode |

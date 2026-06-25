@@ -746,6 +746,58 @@ code {
   background: #0a1018;
 }
 
+.system-load {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.system-disks-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted-2);
+  font-size: 0.57rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.system-disk-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: 7px;
+  background: rgba(8, 13, 20, 0.35);
+}
+
+.system-disk-row + .system-disk-row {
+  margin-top: 6px;
+}
+
+.system-disk-row code {
+  overflow: hidden;
+  color: #75bfff;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.system-disk-row strong {
+  flex-shrink: 0;
+  color: #d7e0e9;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.system-disk-row.is-empty {
+  justify-content: flex-start;
+  color: var(--muted);
+  font-size: 0.65rem;
+}
+
 .drawer-backdrop {
   position: fixed;
   z-index: 49;

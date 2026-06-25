@@ -10,6 +10,12 @@ from copy import deepcopy
 from datetime import datetime, timezone
 from typing import Any
 
+from system_metrics import (
+    is_system_topic,
+    normalize_metrics,
+    system_device_name,
+)
+
 
 def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="milliseconds")
@@ -42,12 +48,19 @@ def decode_payload(payload: bytes) -> tuple[str, str, bool, Any | None]:
 class DashboardState:
     """Owns bounded message history and topic/device aggregates."""
 
-    def __init__(self, message_limit: int = 1000, online_seconds: int = 60) -> None:
+    def __init__(
+        self,
+        message_limit: int = 1000,
+        online_seconds: int = 60,
+        system_topic_suffix: str = "system",
+    ) -> None:
         self._lock = threading.RLock()
         self._messages: deque[dict[str, Any]] = deque(maxlen=message_limit)
         self._message_times: deque[float] = deque()
         self._topics: dict[str, dict[str, Any]] = {}
         self._devices: dict[str, dict[str, Any]] = {}
+        self._system: dict[str, dict[str, Any]] = {}
+        self._system_topic_suffix = system_topic_suffix
         self._total_messages = 0
         self._next_id = 1
         self._mqtt_connected = False
@@ -95,55 +108,96 @@ class DashboardState:
                 "qos": qos,
                 "retain": retain,
             }
-            self._messages.append(message)
-
-            topic_entry = self._topics.setdefault(
-                topic,
-                {
-                    "topic": topic,
-                    "message_count": 0,
-                    "last_updated": timestamp,
-                    "last_payload": "",
-                    "payload_size": 0,
-                    "payload_encoding": "utf-8",
-                    "json": None,
-                    "is_json": False,
-                },
-            )
-            topic_entry.update(
-                {
-                    "message_count": topic_entry["message_count"] + 1,
-                    "last_updated": timestamp,
-                    "last_payload": payload_text,
-                    "payload_size": len(payload),
-                    "payload_encoding": encoding,
-                    "json": json_value,
-                    "is_json": is_json,
-                }
-            )
-
-            device_entry = self._devices.setdefault(
-                device,
-                {
-                    "name": device,
-                    "last_seen": timestamp,
-                    "last_seen_monotonic": received_monotonic,
-                    "total_messages": 0,
-                    "last_topic": topic,
-                    "last_payload": payload_text,
-                },
-            )
-            device_entry.update(
-                {
-                    "last_seen": timestamp,
-                    "last_seen_monotonic": received_monotonic,
-                    "total_messages": device_entry["total_messages"] + 1,
-                    "last_topic": topic,
-                    "last_payload": payload_text,
-                }
-            )
-
+            self._apply_message_unlocked(message, received_monotonic)
             return deepcopy(message)
+
+    def restore(self, messages: list[dict[str, Any]]) -> None:
+        """Rebuild in-memory aggregates from persisted messages (oldest-first).
+
+        Preserves each message's id and timestamp, and resumes id generation
+        after the highest restored id. Does not touch the live rate window or
+        the session message counter.
+        """
+        with self._lock:
+            now = time.monotonic()
+            max_id = 0
+            for message in messages:
+                self._apply_message_unlocked(message, now)
+                max_id = max(max_id, message["id"])
+            if max_id:
+                self._next_id = max_id + 1
+
+    def _apply_message_unlocked(
+        self, message: dict[str, Any], received_monotonic: float
+    ) -> None:
+        """Fold one message into the feed, topic, device, and system aggregates."""
+        topic = message["topic"]
+        timestamp = message["timestamp"]
+        device = message["device"]
+        payload_text = message["payload"]
+        encoding = message["payload_encoding"]
+        is_json = message["is_json"]
+        json_value = message["json"]
+
+        self._messages.append(message)
+
+        topic_entry = self._topics.setdefault(
+            topic,
+            {
+                "topic": topic,
+                "message_count": 0,
+                "last_updated": timestamp,
+                "last_payload": "",
+                "payload_size": 0,
+                "payload_encoding": "utf-8",
+                "json": None,
+                "is_json": False,
+            },
+        )
+        topic_entry.update(
+            {
+                "message_count": topic_entry["message_count"] + 1,
+                "last_updated": timestamp,
+                "last_payload": payload_text,
+                "payload_size": message["payload_size"],
+                "payload_encoding": encoding,
+                "json": json_value,
+                "is_json": is_json,
+            }
+        )
+
+        device_entry = self._devices.setdefault(
+            device,
+            {
+                "name": device,
+                "last_seen": timestamp,
+                "last_seen_monotonic": received_monotonic,
+                "total_messages": 0,
+                "last_topic": topic,
+                "last_payload": payload_text,
+            },
+        )
+        device_entry.update(
+            {
+                "last_seen": timestamp,
+                "last_seen_monotonic": received_monotonic,
+                "total_messages": device_entry["total_messages"] + 1,
+                "last_topic": topic,
+                "last_payload": payload_text,
+            }
+        )
+
+        if is_system_topic(topic, self._system_topic_suffix):
+            metrics = normalize_metrics(json_value)
+            if metrics is not None:
+                sys_device = system_device_name(topic, self._system_topic_suffix)
+                self._system[sys_device] = {
+                    "device": sys_device,
+                    "metrics": metrics,
+                    "last_seen": timestamp,
+                    "last_seen_monotonic": received_monotonic,
+                    "topic": topic,
+                }
 
     def stats(self) -> dict[str, Any]:
         with self._lock:
@@ -163,9 +217,29 @@ class DashboardState:
                 "messages": list(reversed(deepcopy(self._messages))),
                 "topics": deepcopy(list(self._topics.values())),
                 "devices": deepcopy(devices),
+                "system": self._system_snapshot_unlocked(now),
                 "stats": self._stats_unlocked(),
                 "status": self._status_unlocked(),
             }
+
+    def system_snapshot(self) -> list[dict[str, Any]]:
+        """Return the latest normalized metrics per system device."""
+        with self._lock:
+            return self._system_snapshot_unlocked(time.monotonic())
+
+    def _system_snapshot_unlocked(self, now: float) -> list[dict[str, Any]]:
+        snapshot = []
+        for entry in self._system.values():
+            public = {
+                key: value
+                for key, value in entry.items()
+                if key != "last_seen_monotonic"
+            }
+            public["online"] = (
+                now - entry["last_seen_monotonic"] <= self._online_seconds
+            )
+            snapshot.append(deepcopy(public))
+        return snapshot
 
     def _prune_rate_window_unlocked(self, now: float) -> None:
         cutoff = now - 1.0

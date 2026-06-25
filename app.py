@@ -12,6 +12,7 @@ from flask_socketio import SocketIO, emit
 
 from config import Config
 from dashboard_state import DashboardState
+from message_store import MessageStore
 from mqtt_client import MQTTClient
 
 logging.basicConfig(
@@ -69,6 +70,7 @@ class SocketEventBatcher:
             if stats_elapsed >= 1.0:
                 stats_elapsed = 0.0
                 self._socketio.emit("stats", self._state.stats())
+                self._socketio.emit("system", self._state.system_snapshot())
 
 
 def create_app(
@@ -91,8 +93,16 @@ def create_app(
     state = DashboardState(
         message_limit=settings.MESSAGE_LIMIT,
         online_seconds=settings.DEVICE_ONLINE_SECONDS,
+        system_topic_suffix=settings.SYSTEM_TOPIC_SUFFIX,
     )
     batcher = SocketEventBatcher(socketio, state, settings.SOCKET_BATCH_INTERVAL)
+
+    store: MessageStore | None = None
+    if settings.LOG_PERSISTENCE_ENABLED:
+        store = MessageStore(settings.LOG_DB_PATH, settings.LOG_RETENTION)
+        restored = store.recent(settings.MESSAGE_LIMIT)
+        state.restore(restored)
+        logger.info("Restored %d messages from %s", len(restored), settings.LOG_DB_PATH)
 
     def handle_status(connected: bool, detail: str) -> None:
         status = state.set_mqtt_status(connected, detail)
@@ -105,12 +115,15 @@ def create_app(
             qos=qos,
             retain=retain,
         )
+        if store is not None:
+            store.append(message)
         batcher.push(message)
 
     mqtt_client = MQTTClient(settings, handle_message, handle_status)
     app.extensions["dashboard_state"] = state
     app.extensions["event_batcher"] = batcher
     app.extensions["mqtt_client"] = mqtt_client
+    app.extensions["message_store"] = store
 
     @app.get("/")
     def index() -> str:
@@ -140,6 +153,7 @@ def main() -> None:
     app, socketio = create_app(settings)
     mqtt_client: MQTTClient = app.extensions["mqtt_client"]
     batcher: SocketEventBatcher = app.extensions["event_batcher"]
+    store: MessageStore | None = app.extensions["message_store"]
 
     try:
         socketio.run(
@@ -153,6 +167,8 @@ def main() -> None:
     finally:
         mqtt_client.stop()
         batcher.stop()
+        if store is not None:
+            store.close()
 
 
 if __name__ == "__main__":

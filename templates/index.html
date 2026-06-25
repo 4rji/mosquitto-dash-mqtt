@@ -114,6 +114,9 @@
             <button class="view-tab" type="button" data-panel="devicesPanel">
               Devices <span id="deviceCountBadge" class="tab-count">0</span>
             </button>
+            <button class="view-tab" type="button" data-panel="systemPanel">
+              System health <span id="systemCountBadge" class="tab-count">0</span>
+            </button>
           </nav>
           <div class="stream-state">
             <span class="pulse-dot"></span>
@@ -183,6 +186,20 @@
           <div id="deviceEmpty" class="empty-state">
             <h2>No devices inferred</h2>
             <p>Messages on topics such as <code>router01/status</code> will create a device card.</p>
+          </div>
+        </div>
+
+        <div id="systemPanel" class="dashboard-panel">
+          <div class="panel-controls">
+            <div>
+              <h2>System health</h2>
+              <p>Latest load average, RAM, and disk usage per device.</p>
+            </div>
+          </div>
+          <div id="systemGrid" class="device-grid"></div>
+          <div id="systemEmpty" class="empty-state">
+            <h2>No system telemetry yet</h2>
+            <p>Messages on a topic such as <code>router01/system</code> will appear here.</p>
           </div>
         </div>
       </section>

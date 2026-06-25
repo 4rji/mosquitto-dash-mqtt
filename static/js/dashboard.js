@@ -9,6 +9,7 @@
     messageIds: new Set(),
     topics: new Map(),
     devices: new Map(),
+    system: new Map(),
     stats: {},
     paused: false,
     pendingWhilePaused: [],
@@ -23,6 +24,8 @@
     topicEmpty: document.getElementById("topicEmpty"),
     deviceGrid: document.getElementById("deviceGrid"),
     deviceEmpty: document.getElementById("deviceEmpty"),
+    systemGrid: document.getElementById("systemGrid"),
+    systemEmpty: document.getElementById("systemEmpty"),
     mqttIndicator: document.getElementById("mqttIndicator"),
     mqttIndicatorText: document.getElementById("mqttIndicatorText"),
     brokerStatusValue: document.getElementById("brokerStatusValue"),
@@ -40,6 +43,7 @@
     feedCountBadge: document.getElementById("feedCountBadge"),
     topicCountBadge: document.getElementById("topicCountBadge"),
     deviceCountBadge: document.getElementById("deviceCountBadge"),
+    systemCountBadge: document.getElementById("systemCountBadge"),
     pauseButton: document.getElementById("pauseButton"),
     streamState: document.querySelector(".stream-state"),
     topicDrawer: document.getElementById("topicDrawer"),
@@ -86,6 +90,7 @@
     state.messageIds = new Set(state.messages.map((message) => message.id));
     state.topics = new Map((snapshot.topics || []).map((topic) => [topic.topic, topic]));
     state.devices = new Map((snapshot.devices || []).map((device) => [device.name, device]));
+    state.system = new Map((snapshot.system || []).map((entry) => [entry.device, entry]));
     state.stats = snapshot.stats || {};
     updateMqttStatus(snapshot.status || { connected: false, detail: "Unknown status" });
     updateStats(state.stats);
@@ -97,6 +102,13 @@
     state.stats = stats;
     updateStats(stats);
     refreshDeviceOnlineStatus();
+  });
+
+  socket.on("system", (entries) => {
+    if (!Array.isArray(entries)) return;
+    state.system = new Map(entries.map((entry) => [entry.device, entry]));
+    updateBadges();
+    renderSystem();
   });
 
   socket.on("mqtt_messages", (messages) => {
@@ -199,6 +211,7 @@
     renderFeed();
     renderTopics();
     renderDevices();
+    renderSystem();
     updateBadges();
   }
 
@@ -375,6 +388,88 @@
     return metric;
   }
 
+  function renderSystem() {
+    const query = normalizedGlobalQuery();
+    const entries = [...state.system.values()]
+      .filter((entry) => !query || entry.device.toLowerCase().includes(query))
+      .sort((a, b) => new Date(b.last_seen) - new Date(a.last_seen));
+
+    const fragment = document.createDocumentFragment();
+    entries.forEach((entry) => fragment.append(createSystemCard(entry)));
+    elements.systemGrid.replaceChildren(fragment);
+    elements.systemEmpty.hidden = entries.length > 0;
+  }
+
+  function createSystemCard(entry) {
+    const metrics = entry.metrics || {};
+    const card = document.createElement("article");
+    card.className = "device-card system-card";
+    card.dataset.device = entry.device;
+
+    const header = document.createElement("div");
+    header.className = "device-card-header";
+    const name = document.createElement("h3");
+    name.className = "device-name";
+    name.textContent = entry.device;
+    name.title = entry.device;
+    const badge = document.createElement("span");
+    badge.className = `online-badge${entry.online ? "" : " offline"}`;
+    const dot = document.createElement("span");
+    dot.className = "status-dot";
+    const badgeText = document.createElement("span");
+    badgeText.textContent = entry.online ? "Online" : "Offline";
+    badge.append(dot, badgeText);
+    header.append(name, badge);
+
+    const load = metrics.load_avg || {};
+    const loadRow = document.createElement("div");
+    loadRow.className = "device-metrics system-load";
+    loadRow.append(
+      deviceMetric("Load 1m", formatMetric(load["1min"])),
+      deviceMetric("Load 5m", formatMetric(load["5min"])),
+      deviceMetric("Load 15m", formatMetric(load["15min"]))
+    );
+
+    const ramRow = document.createElement("div");
+    ramRow.className = "device-metrics";
+    ramRow.append(deviceMetric("RAM", formatMetric(metrics.ram)));
+
+    const disks = document.createElement("div");
+    disks.className = "system-disks";
+    const disksLabel = document.createElement("span");
+    disksLabel.className = "system-disks-label";
+    disksLabel.textContent = "Disk usage";
+    disks.append(disksLabel);
+
+    const diskList = metrics.disks || [];
+    if (diskList.length === 0) {
+      const none = document.createElement("div");
+      none.className = "system-disk-row is-empty";
+      none.textContent = "No disks reported";
+      disks.append(none);
+    } else {
+      diskList.forEach((disk) => {
+        const row = document.createElement("div");
+        row.className = "system-disk-row";
+        const mount = document.createElement("code");
+        mount.textContent = disk.mount;
+        mount.title = disk.mount;
+        const value = document.createElement("strong");
+        value.textContent = formatMetric(disk.value);
+        row.append(mount, value);
+        disks.append(row);
+      });
+    }
+
+    card.append(header, loadRow, ramRow, disks);
+    return card;
+  }
+
+  function formatMetric(value) {
+    if (value === null || value === undefined) return "—";
+    return formatNumber(value);
+  }
+
   function openTopicDrawer(topicName) {
     const topic = state.topics.get(topicName);
     if (!topic) return;
@@ -473,6 +568,7 @@
     elements.feedCountBadge.textContent = formatNumber(state.messages.length);
     elements.topicCountBadge.textContent = formatNumber(state.topics.size);
     elements.deviceCountBadge.textContent = formatNumber(state.devices.size);
+    elements.systemCountBadge.textContent = formatNumber(state.system.size);
   }
 
   function refreshDeviceOnlineStatus() {
