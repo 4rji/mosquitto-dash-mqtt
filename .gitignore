@@ -8,3 +8,5 @@ __pycache__/
 *.db-wal
 *.db-shm
 
+.atl/.skill-registry.cache.json
+.atl/skill-registry.md

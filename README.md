@@ -1,3 +1,5 @@
+![Digi MQTT Monitor dashboard](dashboard.webp)
+
 # Digi Router MQTT Dashboard
 
 A real-time, dark-theme dashboard for observing every message published to a Mosquitto broker by Digi routers. The server subscribes to `#`, keeps a bounded in-memory view of recent traffic, and pushes batched updates to browsers over WebSockets.
@@ -126,4 +128,3 @@ Vanilla JavaScript dashboard
 ```
 
 `MQTTClient`, `DashboardState`, and `SocketEventBatcher` have narrow responsibilities. Persistence, alerting, publishing, authentication, REST endpoints, and health checks can be added as separate services without changing the current message-ingestion path.
-
