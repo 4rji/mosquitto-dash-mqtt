@@ -44,3 +44,9 @@ class Config:
     LOG_PERSISTENCE_ENABLED: bool = _env_bool("LOG_PERSISTENCE_ENABLED", True)
     LOG_DB_PATH: str = os.getenv("LOG_DB_PATH", "mqtt_dashboard.db")
     LOG_RETENTION: int = int(os.getenv("LOG_RETENTION", "100000"))
+
+    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
+    OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+    AI_DASHBOARD_SAMPLE_SIZE: int = int(os.getenv("AI_DASHBOARD_SAMPLE_SIZE", "50"))
+    AI_DASHBOARD_MAX_TOPICS: int = int(os.getenv("AI_DASHBOARD_MAX_TOPICS", "30"))
+    AI_METRIC_SERIES_MAXLEN: int = int(os.getenv("AI_METRIC_SERIES_MAXLEN", "200"))

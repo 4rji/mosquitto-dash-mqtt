@@ -50,6 +50,11 @@ Configuration is centralized in `config.py` and can be overridden with environme
 | `LOG_PERSISTENCE_ENABLED` | `true` | Persist every message to SQLite and reload on startup |
 | `LOG_DB_PATH` | `mqtt_dashboard.db` | SQLite database file path |
 | `LOG_RETENTION` | `100000` | Maximum messages retained in SQLite (oldest pruned) |
+| `OPENAI_API_KEY` | empty | OpenAI API key; AI dashboard generation is disabled (503) when unset |
+| `OPENAI_MODEL` | `gpt-4o-mini` | Model used for AI dashboard generation |
+| `AI_DASHBOARD_SAMPLE_SIZE` | `50` | Recent messages sampled for AI dashboard prompt context |
+| `AI_DASHBOARD_MAX_TOPICS` | `30` | Max distinct topics included in AI dashboard prompt context |
+| `AI_METRIC_SERIES_MAXLEN` | `200` | Max points kept per `series`-mode AI dashboard metric |
 | `APP_HOST` | `0.0.0.0` | Web server bind address |
 | `APP_PORT` | `5000` | Web server port |
 | `APP_DEBUG` | `false` | Flask debug mode |
