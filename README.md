@@ -40,6 +40,8 @@ Configuration is centralized in `config.py` and can be overridden with environme
 | `MQTT_PORT` | `1883` | Plain MQTT port |
 | `MQTT_USERNAME` | empty | Optional broker username |
 | `MQTT_PASSWORD` | empty | Optional broker password |
+| `MQTT_TLS_ENABLED` | `false` | Enable MQTT over TLS (use for EMQX Cloud port `8883`) |
+| `MQTT_CA_CERT` | empty | Optional path to the downloaded CA certificate |
 | `MQTT_TOPIC` | `#` | Subscription filter |
 | `SYSTEM_TOPIC_SUFFIX` | `system` | Last topic segment identifying system telemetry (e.g. `router01/system`) |
 | `MQTT_KEEPALIVE` | `60` | MQTT keepalive in seconds |
@@ -60,7 +62,26 @@ export MQTT_PORT=1883
 python app.py
 ```
 
-No username, password, or TLS is used when the authentication variables are empty.
+No username or password is sent when the authentication variables are empty.
+TLS is enabled separately with `MQTT_TLS_ENABLED`.
+
+For EMQX Cloud, create a username and password under **Access Control →
+Authentication** (the authorization rule only controls topic permissions), then
+configure the TLS endpoint:
+
+```bash
+export MQTT_HOST=le10bc35.ala.us-east-1.emqxsl.com
+export MQTT_PORT=8883
+export MQTT_USERNAME=testAT
+export MQTT_PASSWORD='tu_contraseña'
+export MQTT_TLS_ENABLED=true
+export MQTT_CA_CERT=/ruta/al/ca.crt
+python app.py
+```
+
+Download the CA certificate shown in the EMQX Cloud connection information and
+use its local path in `MQTT_CA_CERT`. The dashboard uses MQTT over TLS on port
+`8883`; port `8084` is for WebSocket clients, not this Python MQTT client.
 
 ## Running
 

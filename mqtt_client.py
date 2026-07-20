@@ -42,6 +42,8 @@ class MQTTClient:
                 config.MQTT_USERNAME,
                 config.MQTT_PASSWORD or None,
             )
+        if config.MQTT_TLS_ENABLED:
+            self._client.tls_set(ca_certs=config.MQTT_CA_CERT or None)
 
         self._client.reconnect_delay_set(min_delay=1, max_delay=30)
         self._client.on_connect = self._on_connect

@@ -5,6 +5,10 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 def _env_bool(name: str, default: bool) -> bool:
     value = os.getenv(name)
@@ -21,6 +25,8 @@ class Config:
     MQTT_PORT: int = int(os.getenv("MQTT_PORT", "1883"))
     MQTT_USERNAME: str = os.getenv("MQTT_USERNAME", "")
     MQTT_PASSWORD: str = os.getenv("MQTT_PASSWORD", "")
+    MQTT_TLS_ENABLED: bool = _env_bool("MQTT_TLS_ENABLED", False)
+    MQTT_CA_CERT: str = os.getenv("MQTT_CA_CERT", "")
     MQTT_TOPIC: str = os.getenv("MQTT_TOPIC", "#")
     MQTT_KEEPALIVE: int = int(os.getenv("MQTT_KEEPALIVE", "60"))
     MQTT_ENABLED: bool = _env_bool("MQTT_ENABLED", True)
@@ -38,4 +44,3 @@ class Config:
     LOG_PERSISTENCE_ENABLED: bool = _env_bool("LOG_PERSISTENCE_ENABLED", True)
     LOG_DB_PATH: str = os.getenv("LOG_DB_PATH", "mqtt_dashboard.db")
     LOG_RETENTION: int = int(os.getenv("LOG_RETENTION", "100000"))
-
