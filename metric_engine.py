@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import threading
 from collections import deque
 from typing import Any
@@ -43,9 +44,19 @@ class MetricEngine:
         with self._lock:
             for dashboard_id, metrics in self._metrics.items():
                 for metric in metrics:
-                    if not topic_matches_sub(metric["topic_filter"], topic):
+                    is_topic_sourced = metric.get("value_source") == "topic"
+                    # topic_regex already does full-string matching against the topic,
+                    # so it alone decides relevance here — an LLM-authored topic_filter
+                    # is easy to get syntactically wrong for single-segment topics
+                    # (MQTT wildcards match whole '/'-separated segments, not substrings)
+                    # and would otherwise silently mask an otherwise-correct topic_regex.
+                    if not is_topic_sourced and not topic_matches_sub(metric["topic_filter"], topic):
                         continue
-                    value = coerce_number(_extract(json_value, metric["json_path"]))
+                    if is_topic_sourced:
+                        raw_value = _extract_from_topic(topic, metric["topic_regex"])
+                    else:
+                        raw_value = _extract(json_value, metric["json_path"])
+                    value = coerce_number(raw_value)
                     if value is None:
                         continue
                     row = {
@@ -86,3 +97,11 @@ def _extract(value: Any, path: str) -> Any:
             return None
         value = value[segment]
     return value
+
+
+def _extract_from_topic(topic: str, pattern: str) -> Any:
+    """Regex lookup against the topic string itself, for devices that embed
+    a value in the topic rather than the payload (e.g. topic "Health 100").
+    Returns the first capturing group, or None if the pattern doesn't match."""
+    match = re.search(pattern, topic)
+    return match.group(1) if match else None

@@ -39,6 +39,7 @@ VALID_RESPONSE = json.dumps(
                 "id": "temp_router01",
                 "label": "Temperature",
                 "topic_filter": "+/temperature",
+                "value_source": "payload",
                 "json_path": "temperature",
                 "mode": "point",
             }
@@ -122,6 +123,46 @@ class ValidateResponseTests(unittest.TestCase):
     def test_rejects_empty_metrics(self) -> None:
         payload = json.loads(VALID_RESPONSE)
         payload["metrics"] = []
+        with self.assertRaises(AIDashboardError):
+            validate_response(payload)
+
+    def test_accepts_topic_value_source_with_valid_regex(self) -> None:
+        payload = json.loads(VALID_RESPONSE)
+        payload["metrics"][0] = {
+            "id": "health",
+            "label": "Health",
+            "topic_filter": "#",
+            "value_source": "topic",
+            "topic_regex": r"Health (\d+)",
+            "mode": "point",
+        }
+        result = validate_response(payload)
+        self.assertEqual(result["metrics"][0]["topic_regex"], r"Health (\d+)")
+
+    def test_rejects_invalid_value_source(self) -> None:
+        payload = json.loads(VALID_RESPONSE)
+        payload["metrics"][0]["value_source"] = "somewhere_else"
+        with self.assertRaises(AIDashboardError):
+            validate_response(payload)
+
+    def test_rejects_topic_value_source_without_topic_regex(self) -> None:
+        payload = json.loads(VALID_RESPONSE)
+        payload["metrics"][0]["value_source"] = "topic"
+        del payload["metrics"][0]["json_path"]
+        with self.assertRaises(AIDashboardError):
+            validate_response(payload)
+
+    def test_rejects_topic_regex_with_no_capturing_group(self) -> None:
+        payload = json.loads(VALID_RESPONSE)
+        payload["metrics"][0]["value_source"] = "topic"
+        payload["metrics"][0]["topic_regex"] = "Health"
+        with self.assertRaises(AIDashboardError):
+            validate_response(payload)
+
+    def test_rejects_malformed_topic_regex(self) -> None:
+        payload = json.loads(VALID_RESPONSE)
+        payload["metrics"][0]["value_source"] = "topic"
+        payload["metrics"][0]["topic_regex"] = "Health ("
         with self.assertRaises(AIDashboardError):
             validate_response(payload)
 

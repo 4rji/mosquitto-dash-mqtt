@@ -3,27 +3,79 @@
 from __future__ import annotations
 
 import json
+import re
 from typing import Any, Protocol
 
 from dashboard_state import DashboardState
 from message_store import MessageStore
 
 _ALLOWED_MODES = {"point", "series"}
+_ALLOWED_VALUE_SOURCES = {"payload", "topic"}
 
 _SYSTEM_PROMPT = (
     "You design a single Vega-Lite v5 chart for live MQTT telemetry. "
     "Reply with a single JSON object only, no prose, matching exactly this shape:\n"
     '{"spec": <Vega-Lite v5 spec object>, "metrics": ['
     '{"id": <string>, "label": <string>, "topic_filter": <string>, '
-    '"json_path": <string>, "mode": "point" | "series"}, ...]}\n'
+    '"value_source": "payload" | "topic", "json_path": <string>, '
+    '"topic_regex": <string>, "mode": "point" | "series"}, ...]}\n'
+    "\n"
     "The chart's data source MUST be named \"table\" (spec.data.name == \"table\") "
     "and rows have exactly these fields: metric (string), group (string), "
-    "value (number), ts (ISO-8601 string). "
-    "Each entry in \"metrics\" extracts one value stream from the sampled MQTT "
-    "traffic below: topic_filter is an MQTT wildcard pattern (+, #), json_path is "
-    "a dot-path into the decoded JSON payload (e.g. \"load_avg.1min\"), and mode is "
-    "\"point\" (latest value per device, for bar/pie charts) or \"series\" "
-    "(value over time, for line/area charts). \"metrics\" must contain at least one entry."
+    "value (number), ts (ISO-8601 string).\n"
+    "\n"
+    "Each entry in \"metrics\" extracts one live value stream from the sampled MQTT "
+    "traffic below. topic_filter is a real MQTT subscription wildcard, matched on whole "
+    "'/'-separated segments only: '+' matches exactly one whole segment, '#' matches all "
+    "remaining segments and must be the last segment, either alone or immediately after "
+    "a '/' (e.g. \"router/+/temperature\" or \"router/#\"). Neither wildcard does "
+    "substring or prefix matching within a segment — \"Health #\" does NOT match a topic "
+    "like \"Health 100\" (that is one segment, not two). If the value lives in a single "
+    "segment with no reliable '/' hierarchy to filter on, just use topic_filter \"#\" and "
+    "rely on topic_regex (below) for the actual selectivity. mode is \"point\" (latest "
+    "value per device, for bar/pie/gauge charts) or \"series\" (value over time, for "
+    "line/area charts).\n"
+    "\n"
+    "Most telemetry is JSON in the payload: set value_source to \"payload\" and "
+    "json_path to a dot-path into the decoded JSON payload (e.g. \"load_avg.1min\"); "
+    "omit topic_regex.\n"
+    "Some devices instead encode the value directly in the topic string itself, with a "
+    "mostly-constant payload (e.g. topic \"Health 100\", payload \"log-status-ok\"). For "
+    "those, set value_source to \"topic\" and topic_regex to a regular expression with "
+    "exactly ONE capturing group around the numeric value, matched with re.search against "
+    "the full topic string (e.g. \"Health (\\\\d+)\" matches topic \"Health 100\"); omit "
+    "json_path. Look at the sample traffic below to decide which source applies.\n"
+    "\n"
+    "IMPORTANT: any transform filter in the spec that compares against the \"metric\" "
+    "field MUST use the exact same string as that metric's \"id\" — never its label or "
+    "any other name.\n"
+    "\n"
+    "Vega-Lite's \"shape\" encoding channel only accepts these values: circle, square, "
+    "cross, diamond, triangle-up, triangle-down, triangle-right, triangle-left, "
+    "triangle, arrow, wedge, stroke, none. There is no \"heart\" shape and no native "
+    "liquid-fill gauge mark. To represent something like a heart-shaped health "
+    "indicator, use a layered spec with text marks and a glyph instead, for example "
+    "(single metric \"health\", mode \"point\"):\n"
+    '{"data": {"name": "table"}, "transform": [{"filter": "datum.metric == \'health\'"}], '
+    '"layer": [\n'
+    '  {"mark": {"type": "text", "fontSize": 80, "text": "' + "❤" + '"}, '
+    '"encoding": {"opacity": {"field": "value", "type": "quantitative", '
+    '"scale": {"domain": [0, 100], "range": [0.15, 1]}}, '
+    '"color": {"condition": {"test": "datum.value <= 0", "value": "red"}, "value": "black"}}},\n'
+    '  {"mark": {"type": "text", "fontSize": 20, "dy": 60}, '
+    '"encoding": {"text": {"condition": {"test": "datum.value <= 0", "value": "ALERT"}, '
+    '"field": "value", "type": "quantitative"}, '
+    '"color": {"condition": {"test": "datum.value <= 0", "value": "red"}, "value": "black"}}}\n'
+    "]}\n"
+    "This pattern (glyph opacity scaled by value, conditional red alert at the low "
+    "threshold, a second text layer for the number) generalizes to other single-value "
+    "indicators the user asks for — reuse it rather than inventing unsupported marks. "
+    "Copy the glyph character above verbatim rather than substituting a different emoji: "
+    "write it as a literal character in your JSON string, never as a \\u escape — many "
+    "emoji sit above U+FFFF and require a surrogate pair when escaped, which is easy to "
+    "get wrong and will corrupt the glyph.\n"
+    "\n"
+    "\"metrics\" must contain at least one entry."
 )
 
 
@@ -108,10 +160,33 @@ def validate_response(payload: Any) -> dict[str, Any]:
         seen_ids.add(metric_id)
         if not isinstance(metric.get("topic_filter"), str) or not metric["topic_filter"]:
             raise AIDashboardError(f"metric {metric_id}: topic_filter must be a non-empty string")
-        if not isinstance(metric.get("json_path"), str) or not metric["json_path"]:
-            raise AIDashboardError(f"metric {metric_id}: json_path must be a non-empty string")
         if metric.get("mode") not in _ALLOWED_MODES:
             raise AIDashboardError(f"metric {metric_id}: mode must be one of {sorted(_ALLOWED_MODES)}")
+
+        value_source = metric.get("value_source")
+        if value_source not in _ALLOWED_VALUE_SOURCES:
+            raise AIDashboardError(
+                f"metric {metric_id}: value_source must be one of {sorted(_ALLOWED_VALUE_SOURCES)}"
+            )
+        if value_source == "payload":
+            if not isinstance(metric.get("json_path"), str) or not metric["json_path"]:
+                raise AIDashboardError(
+                    f"metric {metric_id}: json_path must be a non-empty string when value_source is \"payload\""
+                )
+        else:
+            topic_regex = metric.get("topic_regex")
+            if not isinstance(topic_regex, str) or not topic_regex:
+                raise AIDashboardError(
+                    f"metric {metric_id}: topic_regex must be a non-empty string when value_source is \"topic\""
+                )
+            try:
+                compiled = re.compile(topic_regex)
+            except re.error as error:
+                raise AIDashboardError(f"metric {metric_id}: topic_regex is not a valid regex: {error}")
+            if compiled.groups != 1:
+                raise AIDashboardError(
+                    f"metric {metric_id}: topic_regex must have exactly one capturing group"
+                )
 
     return payload
 

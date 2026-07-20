@@ -26,6 +26,7 @@ POINT_METRIC = {
     "id": "temp",
     "label": "Temperature",
     "topic_filter": "+/temperature",
+    "value_source": "payload",
     "json_path": "temperature",
     "mode": "point",
 }
@@ -34,8 +35,18 @@ SERIES_METRIC = {
     "id": "load",
     "label": "Load",
     "topic_filter": "+/system",
+    "value_source": "payload",
     "json_path": "load_avg.1min",
     "mode": "series",
+}
+
+TOPIC_VALUE_METRIC = {
+    "id": "health",
+    "label": "Health",
+    "topic_filter": "#",
+    "value_source": "topic",
+    "topic_regex": r"Health (\d+)",
+    "mode": "point",
 }
 
 
@@ -85,6 +96,42 @@ class MetricEngineTests(unittest.TestCase):
         changed = engine.ingest(make_message("router01/temperature", b'{"other": 1}'))
 
         self.assertEqual(changed, [])
+
+    def test_topic_value_source_extracts_from_the_topic_string(self) -> None:
+        engine = MetricEngine()
+        engine.register(1, [TOPIC_VALUE_METRIC])
+
+        changed = engine.ingest(make_message("Health 100", b"log-status-ok"))
+
+        self.assertEqual(len(changed), 1)
+        self.assertEqual(changed[0]["metric"], "health")
+        self.assertEqual(changed[0]["value"], 100.0)
+
+        engine.ingest(make_message("Health 0", b"log-status-ok"))
+        snapshot = engine.snapshot(1)
+        self.assertEqual(len(snapshot), 1)
+        self.assertEqual(snapshot[0]["value"], 0.0)
+
+    def test_topic_value_source_skips_non_matching_topics(self) -> None:
+        engine = MetricEngine()
+        engine.register(1, [TOPIC_VALUE_METRIC])
+
+        changed = engine.ingest(make_message("router01/status", b"ok"))
+
+        self.assertEqual(changed, [])
+
+    def test_topic_value_source_ignores_an_incorrect_topic_filter(self) -> None:
+        # An LLM-authored topic_filter like "Health #" is not valid MQTT wildcard
+        # syntax for a single-segment topic ("#" only matches whole segments after
+        # a "/"). topic_regex alone must still decide relevance in "topic" mode.
+        metric = dict(TOPIC_VALUE_METRIC, topic_filter="Health #")
+        engine = MetricEngine()
+        engine.register(1, [metric])
+
+        changed = engine.ingest(make_message("Health 100", b"log-status-ok"))
+
+        self.assertEqual(len(changed), 1)
+        self.assertEqual(changed[0]["value"], 100.0)
 
     def test_unregister_stops_future_updates(self) -> None:
         engine = MetricEngine()

@@ -16,6 +16,7 @@ _VALID_RESPONSE = json.dumps(
                 "id": "temp_router01",
                 "label": "Temperature",
                 "topic_filter": "+/temperature",
+                "value_source": "payload",
                 "json_path": "temperature",
                 "mode": "point",
             }
@@ -37,14 +38,17 @@ class _FakeOpenAIClient:
 
 class AppIntegrationTests(unittest.TestCase):
     def setUp(self) -> None:
+        self._dir = tempfile.TemporaryDirectory()
+        db_path = str(Path(self._dir.name) / "test.db")
         self.app, self.socketio = create_app(
-            Config(MQTT_ENABLED=False, SOCKET_BATCH_INTERVAL=0.01),
+            Config(MQTT_ENABLED=False, SOCKET_BATCH_INTERVAL=0.01, LOG_DB_PATH=db_path),
             start_mqtt=False,
         )
         self.app.config["TESTING"] = True
 
     def tearDown(self) -> None:
         self.app.extensions["event_batcher"].stop()
+        self._dir.cleanup()
 
     def test_index_and_websocket_snapshot(self) -> None:
         response = self.app.test_client().get("/")
