@@ -10,3 +10,4 @@ __pycache__/
 
 .atl/.skill-registry.cache.json
 .atl/skill-registry.md
+config.py.env

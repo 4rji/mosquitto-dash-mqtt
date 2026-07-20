@@ -21,10 +21,10 @@ def _env_bool(name: str, default: bool) -> bool:
 class Config:
     """Runtime settings for the web server and MQTT connection."""
 
-    MQTT_HOST: str = os.getenv("MQTT_HOST", "10.10.65.x")
+    MQTT_HOST: str = os.getenv("MQTT_HOST", "10.10.65.67")
     MQTT_PORT: int = int(os.getenv("MQTT_PORT", "1883"))
-    MQTT_USERNAME: str = os.getenv("MQTT_USERNAME", "")
-    MQTT_PASSWORD: str = os.getenv("MQTT_PASSWORD", "")
+    MQTT_USERNAME: str = os.getenv("MQTT_USERNAME", "digimqtt")
+    MQTT_PASSWORD: str = os.getenv("MQTT_PASSWORD", "digimqtt")
     MQTT_TLS_ENABLED: bool = _env_bool("MQTT_TLS_ENABLED", False)
     MQTT_CA_CERT: str = os.getenv("MQTT_CA_CERT", "")
     MQTT_TOPIC: str = os.getenv("MQTT_TOPIC", "#")
@@ -45,7 +45,7 @@ class Config:
     LOG_DB_PATH: str = os.getenv("LOG_DB_PATH", "mqtt_dashboard.db")
     LOG_RETENTION: int = int(os.getenv("LOG_RETENTION", "100000"))
 
-    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
+    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", " ")
     OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
     AI_DASHBOARD_SAMPLE_SIZE: int = int(os.getenv("AI_DASHBOARD_SAMPLE_SIZE", "50"))
     AI_DASHBOARD_MAX_TOPICS: int = int(os.getenv("AI_DASHBOARD_MAX_TOPICS", "30"))
