@@ -76,6 +76,7 @@
     reconnectionDelay: 500,
     reconnectionDelayMax: 5000,
   });
+  window.dashboardSocket = socket;
 
   socket.on("connect", () => {
     elements.transportWarning.classList.add("d-none");

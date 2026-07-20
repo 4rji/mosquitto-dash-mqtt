@@ -10,38 +10,12 @@ from message_store import MessageStore
 
 _ALLOWED_MODES = {"point", "series"}
 
-_RESPONSE_SCHEMA = {
-    "name": "ai_dashboard",
-    "schema": {
-        "type": "object",
-        "additionalProperties": False,
-        "required": ["spec", "metrics"],
-        "properties": {
-            "spec": {"type": "object"},
-            "metrics": {
-                "type": "array",
-                "minItems": 1,
-                "items": {
-                    "type": "object",
-                    "additionalProperties": False,
-                    "required": ["id", "label", "topic_filter", "json_path", "mode"],
-                    "properties": {
-                        "id": {"type": "string", "minLength": 1},
-                        "label": {"type": "string"},
-                        "topic_filter": {"type": "string", "minLength": 1},
-                        "json_path": {"type": "string", "minLength": 1},
-                        "mode": {"type": "string", "enum": ["point", "series"]},
-                    },
-                },
-            },
-        },
-    },
-    "strict": True,
-}
-
 _SYSTEM_PROMPT = (
     "You design a single Vega-Lite v5 chart for live MQTT telemetry. "
-    "Reply with JSON only, matching the provided schema. "
+    "Reply with a single JSON object only, no prose, matching exactly this shape:\n"
+    '{"spec": <Vega-Lite v5 spec object>, "metrics": ['
+    '{"id": <string>, "label": <string>, "topic_filter": <string>, '
+    '"json_path": <string>, "mode": "point" | "series"}, ...]}\n'
     "The chart's data source MUST be named \"table\" (spec.data.name == \"table\") "
     "and rows have exactly these fields: metric (string), group (string), "
     "value (number), ts (ISO-8601 string). "
@@ -49,7 +23,7 @@ _SYSTEM_PROMPT = (
     "traffic below: topic_filter is an MQTT wildcard pattern (+, #), json_path is "
     "a dot-path into the decoded JSON payload (e.g. \"load_avg.1min\"), and mode is "
     "\"point\" (latest value per device, for bar/pie charts) or \"series\" "
-    "(value over time, for line/area charts)."
+    "(value over time, for line/area charts). \"metrics\" must contain at least one entry."
 )
 
 
@@ -81,7 +55,7 @@ class OpenAIChatClient:
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            response_format={"type": "json_schema", "json_schema": _RESPONSE_SCHEMA},
+            response_format={"type": "json_object"},
         )
         return response.choices[0].message.content
 
