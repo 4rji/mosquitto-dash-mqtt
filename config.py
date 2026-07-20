@@ -33,7 +33,7 @@ class Config:
     SYSTEM_TOPIC_SUFFIX: str = os.getenv("SYSTEM_TOPIC_SUFFIX", "system")
 
     APP_HOST: str = os.getenv("APP_HOST", "0.0.0.0")
-    APP_PORT: int = int(os.getenv("APP_PORT", "5000"))
+    APP_PORT: int = int(os.getenv("APP_PORT", "5051"))
     APP_DEBUG: bool = _env_bool("APP_DEBUG", False)
     SECRET_KEY: str = os.getenv("SECRET_KEY", "mqtt-dashboard-development-key")
 

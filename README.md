@@ -56,7 +56,7 @@ Configuration is centralized in `config.py` and can be overridden with environme
 | `AI_DASHBOARD_MAX_TOPICS` | `30` | Max distinct topics included in AI dashboard prompt context |
 | `AI_METRIC_SERIES_MAXLEN` | `200` | Max points kept per `series`-mode AI dashboard metric |
 | `APP_HOST` | `0.0.0.0` | Web server bind address |
-| `APP_PORT` | `5000` | Web server port |
+| `APP_PORT` | `5051` | Web server port |
 | `APP_DEBUG` | `false` | Flask debug mode |
 
 For example:
@@ -94,7 +94,7 @@ use its local path in `MQTT_CA_CERT`. The dashboard uses MQTT over TLS on port
 python app.py
 ```
 
-Open [http://localhost:5000](http://localhost:5000). The browser uses a WebSocket-only Socket.IO connection; there is no polling or page refresh.
+Open [http://localhost:5051](http://localhost:5051). The browser uses a WebSocket-only Socket.IO connection; there is no polling or page refresh.
 
 ## Topic and payload behavior
 
@@ -126,7 +126,7 @@ python -m unittest discover -s tests
 
 ```bash
 docker build -t digi-mqtt-dashboard .
-docker run --rm -p 5000:5000 \
+docker run --rm -p 5051:5051 \
   -e MQTT_HOST=10.10.65.42 \
   digi-mqtt-dashboard
 ```
