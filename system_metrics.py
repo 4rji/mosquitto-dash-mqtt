@@ -39,7 +39,7 @@ def _maybe_unwrap_json(value: Any) -> Any:
     return value
 
 
-def _coerce_number(value: Any) -> float | None:
+def coerce_number(value: Any) -> float | None:
     """Coerce a numeric string to ``float``; anything else becomes ``None``."""
     if isinstance(value, (int, float)) and not isinstance(value, bool):
         return float(value)
@@ -63,12 +63,12 @@ def normalize_metrics(json_value: Any) -> dict[str, Any] | None:
         return None
 
     load_source = raw_load if isinstance(raw_load, dict) else {}
-    load_avg = {key: _coerce_number(load_source.get(key)) for key in _LOAD_KEYS}
+    load_avg = {key: coerce_number(load_source.get(key)) for key in _LOAD_KEYS}
 
     disk_source = raw_disk if isinstance(raw_disk, dict) else {}
-    ram = _coerce_number(disk_source.get(_RAM_KEY)) if _RAM_KEY in disk_source else None
+    ram = coerce_number(disk_source.get(_RAM_KEY)) if _RAM_KEY in disk_source else None
     disks = [
-        {"mount": mount, "value": _coerce_number(value)}
+        {"mount": mount, "value": coerce_number(value)}
         for mount, value in disk_source.items()
         if mount != _RAM_KEY
     ]
