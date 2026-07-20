@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# --- VARIABLES DE CONFIGURACIÓN ---
+USUARIO="test"
+CONTRASENA="vfds745kvyYWezk"
+
+HOST="le10bc35.ala.us-east-1.emqxsl.com"
+PUERTO="8883"
+TOPICO="prueba/router"
+CERTIFICADO="emqxsl-ca.crt"
+# ----------------------------------
+
+echo "Iniciando envío de 10 logs a EMQX Cloud..."
+echo "Servidor: $HOST"
+echo "Tópico: $TOPICO"
+echo "----------------------------------------"
+
+# Bucle que se repetirá 10 veces
+for i in {1..10}
+do
+  # Generar un mensaje diferente cada vez (ej: Test-1 ix20)
+  MENSAJE="Test-$i ix20 log-status-ok"
+  
+  # Mostrar en la pantalla local lo que estamos enviando
+  echo "Enviando mensaje $i de 10: '$MENSAJE'"
+  
+  # Comando MQTT
+  mosquitto_pub -h "$HOST" -p "$PUERTO" -u "$USUARIO" -P "$CONTRASENA" -t "$TOPICO" -m "$MENSAJE" --cafile "$CERTIFICADO"
+  
+  # Esperar 3 segundos antes del siguiente envío (excepto en el último)
+  if [ $i -lt 10 ]; then
+    sleep 3
+  fi
+done
+
+echo "----------------------------------------"
+echo "¡Completado! Se han enviado los 10 mensajes."
