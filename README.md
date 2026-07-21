@@ -12,8 +12,8 @@ A real-time, dark-theme dashboard for observing every message published to a Mos
 - Search across topic, payload, and inferred device
 - Topic explorer with raw payload, payload size, and collapsible JSON
 - Device cards inferred from the first segment of multi-level topics
-- Curated `Dashboards` tab for the gateway, sensor, router, Wi-Fi AP, PDU, and
-  log topics modeled by `tri_local.py`
+- An always-visible dashboard section above the live feed that brings the
+  HiveMQ, EMQX, and local Mosquitto views from `tri_local.py` into the web interface
 - Lossless binary representation as hexadecimal
 - Approximately 1,000 recent messages retained in memory by default
 - Batched browser delivery to remain responsive under bursty traffic

@@ -1133,85 +1133,26 @@ code {
   }
 }
 
-.ai-dashboard-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.ai-dashboard-form input,
-.ai-dashboard-form textarea {
-  flex: 1 1 240px;
-  padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--surface-2);
-  color: var(--text);
-}
-
-.ai-dashboard-form button {
-  padding: 10px 18px;
-  border: 1px solid var(--cyan);
-  border-radius: 8px;
-  background: var(--cyan-soft);
-  color: var(--cyan);
-  cursor: pointer;
-}
-
-.ai-dashboard-error {
-  margin-bottom: 16px;
-  padding: 10px 12px;
-  border: 1px solid var(--red);
-  border-radius: 8px;
-  color: var(--red);
-}
-
-.ai-dashboard-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-  gap: 16px;
-}
-
-.ai-dashboard-card {
-  padding: 16px;
+/* Curated device dashboards (web counterpart to tri_local.py). */
+.tri-dashboard-section {
+  overflow: hidden;
+  margin-bottom: 18px;
   border: 1px solid var(--border);
   border-radius: 12px;
   background: var(--surface);
+  box-shadow: var(--shadow);
 }
 
-.ai-dashboard-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+.tri-dashboard-section .panel-controls {
+  border-bottom: 1px solid var(--border);
 }
 
-.ai-dashboard-card-header h3 {
-  margin: 0;
-  font-size: 15px;
+.tri-dashboard-section h2 .tab-count {
+  display: inline-flex;
+  margin-left: 6px;
+  vertical-align: middle;
 }
 
-.ai-dashboard-delete {
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: transparent;
-  color: var(--muted);
-  padding: 4px 10px;
-  cursor: pointer;
-}
-
-.ai-dashboard-prompt {
-  margin: 8px 0 12px;
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.ai-dashboard-chart {
-  min-height: 220px;
-}
-
-/* Curated device dashboards (web counterpart to tri_local.py). */
 .curated-dashboard-heading {
   background:
     linear-gradient(90deg, rgba(48, 213, 200, 0.035), transparent 45%),

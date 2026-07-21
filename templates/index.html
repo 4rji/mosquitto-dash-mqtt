@@ -102,6 +102,28 @@
         Browser connection interrupted. Reconnecting…
       </div>
 
+      <section class="tri-dashboard-section" aria-labelledby="triDashboardTitle">
+        <div class="panel-controls curated-dashboard-heading">
+          <div>
+            <h2 id="triDashboardTitle">
+              Operational dashboards
+              <span id="dashboardDeviceCountBadge" class="tab-count">0/5</span>
+            </h2>
+            <p>Live HTTP view of the devices and topics modeled in <code>tri_local.py</code>.</p>
+          </div>
+          <div id="dashboardLiveSummary" class="dashboard-live-summary" aria-live="polite">
+            <span class="status-dot"></span>
+            <span>Waiting for MQTT</span>
+          </div>
+        </div>
+        <div
+          id="triDashboardRoot"
+          class="tri-dashboard-root"
+          data-mqtt-endpoint="{{ mqtt_host }}:{{ mqtt_port }}"
+          data-online-seconds="{{ device_online_seconds }}"
+        ></div>
+      </section>
+
       <section class="workspace">
         <div class="workspace-toolbar">
           <nav class="view-tabs" aria-label="Dashboard views">
@@ -116,12 +138,6 @@
             </button>
             <button class="view-tab" type="button" data-panel="systemPanel">
               System health <span id="systemCountBadge" class="tab-count">0</span>
-            </button>
-            <button class="view-tab" type="button" data-panel="dashboardsPanel">
-              Dashboards <span id="dashboardDeviceCountBadge" class="tab-count">0/5</span>
-            </button>
-            <button class="view-tab" type="button" data-panel="aiDashboardsPanel">
-              AI Dashboards <span id="aiDashboardCountBadge" class="tab-count">0</span>
             </button>
           </nav>
           <div class="stream-state">
@@ -209,55 +225,6 @@
           </div>
         </div>
 
-        <div id="dashboardsPanel" class="dashboard-panel">
-          <div class="panel-controls curated-dashboard-heading">
-            <div>
-              <h2>Operational dashboards</h2>
-              <p>Live HTTP view of the devices and topics modeled in <code>tri_local.py</code>.</p>
-            </div>
-            <div id="dashboardLiveSummary" class="dashboard-live-summary" aria-live="polite">
-              <span class="status-dot"></span>
-              <span>Waiting for MQTT</span>
-            </div>
-          </div>
-          <div
-            id="triDashboardRoot"
-            class="tri-dashboard-root"
-            data-mqtt-endpoint="{{ mqtt_host }}:{{ mqtt_port }}"
-            data-online-seconds="{{ device_online_seconds }}"
-          ></div>
-        </div>
-
-        <div id="aiDashboardsPanel" class="dashboard-panel">
-          <div class="panel-controls">
-            <div>
-              <h2>AI Dashboards</h2>
-              <p>Describe a chart in plain language; it stays live as new MQTT messages arrive.</p>
-            </div>
-          </div>
-          <form id="aiDashboardForm" class="ai-dashboard-form">
-            <input
-              id="aiDashboardName"
-              type="text"
-              placeholder="Dashboard name (e.g. Router temperatures)"
-              autocomplete="off"
-              required
-            >
-            <textarea
-              id="aiDashboardPrompt"
-              placeholder="Describe the chart you want (e.g. line chart of temperature per router)"
-              rows="2"
-              required
-            ></textarea>
-            <button type="submit">Generate</button>
-          </form>
-          <div id="aiDashboardError" class="ai-dashboard-error" hidden></div>
-          <div id="aiDashboardList" class="ai-dashboard-list"></div>
-          <div id="aiDashboardEmpty" class="empty-state compact">
-            <h2>No AI dashboards yet</h2>
-            <p>Generate one above to see it here.</p>
-          </div>
-        </div>
       </section>
     </main>
 
@@ -294,11 +261,7 @@
     </aside>
 
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO" crossorigin="anonymous" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/vega@5.33.1" integrity="sha384-NMXhl2TbCXxcN7o4ROC56Funm78m4AylL8gMg/7Kn4YU+wrm23K9l7cY8lDRXQ9d" crossorigin="anonymous" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.23.0" integrity="sha384-D9LYH0esGjcxQJsBuxOuXtCDJGXRWW1+KhluzWPqi0rLJmiR/ygPChefaD+rFFDQ" crossorigin="anonymous" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.29.0" integrity="sha384-M+Ax7e/WFJpxSOF09HzI+Sj4wg9ottVd/uxmV2ItGGh02fLH28t2FAOJx3TJBap5" crossorigin="anonymous" defer></script>
     <script src="{{ url_for('static', filename='js/dashboard.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/tri-dashboards.js') }}" defer></script>
-    <script src="{{ url_for('static', filename='js/ai-dashboards.js') }}" defer></script>
   </body>
 </html>
