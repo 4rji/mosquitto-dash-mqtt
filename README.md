@@ -1,3 +1,28 @@
+## Recent updates
+
+The web dashboard now uses one always-visible **Operational dashboards** section
+above the live feed. It mirrors the three views modeled by `tri_local.py`:
+HiveMQ Cloud, EMQX Cloud, and Local Mosquitto.
+
+The dashboard section includes a compact-view arrow. Select it to reduce each
+broker and device card to its key values and statuses, making all three broker
+views visible together. The selected layout is remembered in the browser and
+can be expanded again with the same control.
+
+The former **AI Dashboards** page has been removed from the web interface. The
+existing MQTT feed, topic explorer, device cards, and system health views remain
+available below the operational dashboards.
+
+### Dashboard screenshots
+
+Full dashboard view:
+
+![Operational dashboards full view](d1.webp)
+
+Compact dashboard view:
+
+![Operational dashboards compact view](d2.webp)
+
 ![Digi MQTT Monitor dashboard](dashboard.webp)
 
 # Digi Router MQTT Dashboard
