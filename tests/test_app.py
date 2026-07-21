@@ -55,6 +55,8 @@ class AppIntegrationTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"Digi MQTT Monitor", response.data)
         self.assertIn(b'id="triDashboardRoot"', response.data)
+        self.assertIn(b'id="dashboardCompactToggle"', response.data)
+        self.assertIn(b'aria-controls="triDashboardRoot"', response.data)
         self.assertIn(b"tri-dashboards.js", response.data)
         self.assertNotIn(b"AI Dashboards", response.data)
         self.assertNotIn(b"ai-dashboards.js", response.data)

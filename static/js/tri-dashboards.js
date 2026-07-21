@@ -4,6 +4,8 @@
   const root = document.getElementById("triDashboardRoot");
   const summary = document.getElementById("dashboardLiveSummary");
   const deviceCountBadge = document.getElementById("dashboardDeviceCountBadge");
+  const section = root?.closest(".tri-dashboard-section");
+  const compactToggle = document.getElementById("dashboardCompactToggle");
   if (!root) return;
 
   const endpoint = root.dataset.mqttEndpoint || "configured MQTT broker";
@@ -141,6 +143,7 @@
   let renderTimer = null;
 
   buildDashboard();
+  initializeCompactToggle();
 
   const socket = window.dashboardSocket;
   if (!socket) {
@@ -178,6 +181,38 @@
     groups.forEach((group) => {
       state.groupStats.set(group.id, { received: 0, lastSeen: null });
     });
+  }
+
+  function initializeCompactToggle() {
+    if (!section || !compactToggle) return;
+    let compact = false;
+    try {
+      compact = window.localStorage.getItem("triDashboardCompact") === "true";
+    } catch (_error) {
+      compact = false;
+    }
+    setCompact(compact);
+    compactToggle.addEventListener("click", () => {
+      const nextCompact = !section.classList.contains("is-compact");
+      setCompact(nextCompact);
+      try {
+        window.localStorage.setItem("triDashboardCompact", String(nextCompact));
+      } catch (_error) {
+        // The toggle still works when browser storage is unavailable.
+      }
+    });
+  }
+
+  function setCompact(compact) {
+    section.classList.toggle("is-compact", compact);
+    compactToggle.setAttribute("aria-expanded", String(!compact));
+    compactToggle.setAttribute(
+      "aria-label",
+      compact ? "Expand dashboards" : "Minimize dashboards"
+    );
+    compactToggle.title = compact
+      ? "Show complete dashboards"
+      : "Show compact dashboard values";
   }
 
   function ingestMessage(message) {

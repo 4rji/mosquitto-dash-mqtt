@@ -1159,6 +1159,48 @@ code {
     rgba(12, 19, 28, 0.55);
 }
 
+.dashboard-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.dashboard-compact-toggle {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--cyan);
+  background: rgba(8, 13, 20, 0.5);
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
+}
+
+.dashboard-compact-toggle:hover,
+.dashboard-compact-toggle:focus-visible {
+  border-color: rgba(48, 213, 200, 0.45);
+  background: var(--cyan-soft);
+  outline: none;
+}
+
+.dashboard-compact-toggle svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+  transition: transform 180ms ease;
+}
+
+.tri-dashboard-section.is-compact .dashboard-compact-toggle svg {
+  transform: rotate(180deg);
+}
+
 .dashboard-live-summary {
   display: flex;
   min-height: 34px;
@@ -1697,6 +1739,120 @@ code {
   white-space: nowrap;
 }
 
+/* Numeric overview selected with the arrow in the dashboard heading. */
+.tri-dashboard-section.is-compact .tri-dashboard-root {
+  gap: 7px;
+  padding: 8px;
+}
+
+.tri-dashboard-section.is-compact .broker-dashboard-header {
+  min-height: 39px;
+  grid-template-columns: minmax(140px, 1fr) auto auto;
+  gap: 10px;
+  padding: 6px 9px;
+}
+
+.tri-dashboard-section.is-compact .broker-dashboard-marker {
+  height: 16px;
+}
+
+.tri-dashboard-section.is-compact .broker-dashboard-identity p,
+.tri-dashboard-section.is-compact .broker-dashboard-connection code,
+.tri-dashboard-section.is-compact .broker-dashboard-counters span,
+.tri-dashboard-section.is-compact .telemetry-card-icon,
+.tri-dashboard-section.is-compact .telemetry-card-identity code,
+.tri-dashboard-section.is-compact .telemetry-device-identity,
+.tri-dashboard-section.is-compact .telemetry-metric-label,
+.tri-dashboard-section.is-compact .telemetry-gauge-track,
+.tri-dashboard-section.is-compact .telemetry-sparkline svg,
+.tri-dashboard-section.is-compact .telemetry-card-footer,
+.tri-dashboard-section.is-compact .telemetry-waiting > span,
+.tri-dashboard-section.is-compact .telemetry-waiting code,
+.tri-dashboard-section.is-compact .telemetry-log-message,
+.tri-dashboard-section.is-compact .telemetry-log-row:not(:first-child) {
+  display: none;
+}
+
+.tri-dashboard-section.is-compact .broker-dashboard-counters {
+  gap: 9px;
+}
+
+.tri-dashboard-section.is-compact .broker-dashboard-counters > div {
+  min-width: 36px;
+}
+
+.tri-dashboard-section.is-compact .broker-card-grid {
+  gap: 6px;
+  padding: 6px;
+}
+
+.tri-dashboard-section.is-compact .telemetry-card-header {
+  min-height: 35px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+  padding: 5px 8px;
+}
+
+.tri-dashboard-section.is-compact .telemetry-card-identity h4 {
+  margin: 0;
+  font-size: 0.66rem;
+}
+
+.tri-dashboard-section.is-compact .telemetry-card-activity {
+  min-height: 20px;
+  padding: 0 5px;
+  font-size: 0.48rem;
+}
+
+.tri-dashboard-section.is-compact .telemetry-card-body,
+.tri-dashboard-section.is-compact .telemetry-card-log .telemetry-card-body {
+  display: grid;
+  min-height: 0;
+  grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+  gap: 5px;
+  padding: 6px;
+}
+
+.tri-dashboard-section.is-compact .telemetry-metric-row {
+  display: flex;
+  min-height: 27px;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 5px;
+  border: 1px solid rgba(34, 49, 66, 0.52);
+  border-radius: 5px;
+}
+
+.tri-dashboard-section.is-compact .telemetry-metric-value {
+  width: 100%;
+  font-size: 0.6rem;
+  text-align: center;
+}
+
+.tri-dashboard-section.is-compact .telemetry-gauge {
+  display: block;
+}
+
+.tri-dashboard-section.is-compact .telemetry-signal,
+.tri-dashboard-section.is-compact .telemetry-throughput {
+  justify-content: center;
+}
+
+.tri-dashboard-section.is-compact .telemetry-waiting {
+  min-height: 32px;
+  grid-column: 1 / -1;
+}
+
+.tri-dashboard-section.is-compact .telemetry-log-list {
+  grid-column: 1 / -1;
+}
+
+.tri-dashboard-section.is-compact .telemetry-log-row {
+  min-height: 27px;
+  grid-template-columns: 1fr auto;
+  border-bottom: 0;
+}
+
 @media (max-width: 1180px) {
   .broker-dashboard-header {
     grid-template-columns: minmax(210px, 1fr) minmax(220px, 1fr);
@@ -1724,6 +1880,11 @@ code {
 }
 
 @media (max-width: 720px) {
+  .dashboard-heading-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
   .curated-dashboard-heading .dashboard-live-summary {
     align-self: flex-start;
     white-space: normal;
@@ -1756,5 +1917,13 @@ code {
   .broker-card-grid-emqx [data-dashboard-card="emqxLogs"],
   .broker-card-grid-local [data-dashboard-card="localLogs"] {
     grid-column: span 1;
+  }
+
+  .tri-dashboard-section.is-compact .broker-dashboard-header {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .tri-dashboard-section.is-compact .broker-dashboard-counters {
+    display: none;
   }
 }

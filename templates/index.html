@@ -111,9 +111,24 @@
             </h2>
             <p>Live HTTP view of the devices and topics modeled in <code>tri_local.py</code>.</p>
           </div>
-          <div id="dashboardLiveSummary" class="dashboard-live-summary" aria-live="polite">
-            <span class="status-dot"></span>
-            <span>Waiting for MQTT</span>
+          <div class="dashboard-heading-actions">
+            <div id="dashboardLiveSummary" class="dashboard-live-summary" aria-live="polite">
+              <span class="status-dot"></span>
+              <span>Waiting for MQTT</span>
+            </div>
+            <button
+              id="dashboardCompactToggle"
+              class="dashboard-compact-toggle"
+              type="button"
+              aria-controls="triDashboardRoot"
+              aria-expanded="true"
+              aria-label="Minimize dashboards"
+              title="Show compact dashboard values"
+            >
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="m4.5 12.5 5.5-5 5.5 5"/>
+              </svg>
+            </button>
           </div>
         </div>
         <div
