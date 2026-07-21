@@ -12,6 +12,8 @@ A real-time, dark-theme dashboard for observing every message published to a Mos
 - Search across topic, payload, and inferred device
 - Topic explorer with raw payload, payload size, and collapsible JSON
 - Device cards inferred from the first segment of multi-level topics
+- Curated `Dashboards` tab for the gateway, sensor, router, Wi-Fi AP, PDU, and
+  log topics modeled by `tri_local.py`
 - Lossless binary representation as hexadecimal
 - Approximately 1,000 recent messages retained in memory by default
 - Batched browser delivery to remain responsive under bursty traffic

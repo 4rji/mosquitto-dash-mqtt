@@ -117,6 +117,9 @@
             <button class="view-tab" type="button" data-panel="systemPanel">
               System health <span id="systemCountBadge" class="tab-count">0</span>
             </button>
+            <button class="view-tab" type="button" data-panel="dashboardsPanel">
+              Dashboards <span id="dashboardDeviceCountBadge" class="tab-count">0/5</span>
+            </button>
             <button class="view-tab" type="button" data-panel="aiDashboardsPanel">
               AI Dashboards <span id="aiDashboardCountBadge" class="tab-count">0</span>
             </button>
@@ -206,6 +209,25 @@
           </div>
         </div>
 
+        <div id="dashboardsPanel" class="dashboard-panel">
+          <div class="panel-controls curated-dashboard-heading">
+            <div>
+              <h2>Operational dashboards</h2>
+              <p>Live HTTP view of the devices and topics modeled in <code>tri_local.py</code>.</p>
+            </div>
+            <div id="dashboardLiveSummary" class="dashboard-live-summary" aria-live="polite">
+              <span class="status-dot"></span>
+              <span>Waiting for MQTT</span>
+            </div>
+          </div>
+          <div
+            id="triDashboardRoot"
+            class="tri-dashboard-root"
+            data-mqtt-endpoint="{{ mqtt_host }}:{{ mqtt_port }}"
+            data-online-seconds="{{ device_online_seconds }}"
+          ></div>
+        </div>
+
         <div id="aiDashboardsPanel" class="dashboard-panel">
           <div class="panel-controls">
             <div>
@@ -276,6 +298,7 @@
     <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.23.0" integrity="sha384-D9LYH0esGjcxQJsBuxOuXtCDJGXRWW1+KhluzWPqi0rLJmiR/ygPChefaD+rFFDQ" crossorigin="anonymous" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.29.0" integrity="sha384-M+Ax7e/WFJpxSOF09HzI+Sj4wg9ottVd/uxmV2ItGGh02fLH28t2FAOJx3TJBap5" crossorigin="anonymous" defer></script>
     <script src="{{ url_for('static', filename='js/dashboard.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/tri-dashboards.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/ai-dashboards.js') }}" defer></script>
   </body>
 </html>

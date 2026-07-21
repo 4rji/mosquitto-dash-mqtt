@@ -54,6 +54,9 @@ class AppIntegrationTests(unittest.TestCase):
         response = self.app.test_client().get("/")
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"Digi MQTT Monitor", response.data)
+        self.assertIn(b'data-panel="dashboardsPanel"', response.data)
+        self.assertIn(b'id="triDashboardRoot"', response.data)
+        self.assertIn(b"tri-dashboards.js", response.data)
 
         client = self.socketio.test_client(self.app)
         events = client.get_received()
@@ -166,4 +169,3 @@ class AIDashboardWithoutClientTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

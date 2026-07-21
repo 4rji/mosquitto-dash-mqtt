@@ -1210,3 +1210,610 @@ code {
 .ai-dashboard-chart {
   min-height: 220px;
 }
+
+/* Curated device dashboards (web counterpart to tri_local.py). */
+.curated-dashboard-heading {
+  background:
+    linear-gradient(90deg, rgba(48, 213, 200, 0.035), transparent 45%),
+    rgba(12, 19, 28, 0.55);
+}
+
+.dashboard-live-summary {
+  display: flex;
+  min-height: 34px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 11px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  background: rgba(8, 13, 20, 0.5);
+  font-family: var(--mono);
+  font-size: 0.63rem;
+  white-space: nowrap;
+}
+
+.dashboard-live-summary.is-connected {
+  border-color: rgba(54, 209, 125, 0.2);
+  color: #91dcb2;
+}
+
+.tri-dashboard-root {
+  display: grid;
+  gap: 14px;
+  padding: 15px;
+  background:
+    radial-gradient(circle at 50% 0, rgba(77, 159, 255, 0.035), transparent 42rem),
+    #0a1119;
+}
+
+.broker-dashboard {
+  --broker-accent: var(--cyan);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--broker-accent) 24%, var(--border));
+  border-radius: 11px;
+  background: rgba(10, 17, 25, 0.86);
+  box-shadow: 0 15px 36px rgba(0, 0, 0, 0.14);
+}
+
+.broker-dashboard-green { --broker-accent: var(--green); }
+.broker-dashboard-red { --broker-accent: var(--red); }
+
+.broker-dashboard-header {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.25fr) minmax(250px, 1fr) auto;
+  min-height: 67px;
+  align-items: center;
+  gap: 18px;
+  padding: 11px 14px;
+  border-bottom: 1px solid color-mix(in srgb, var(--broker-accent) 17%, var(--border-soft));
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--broker-accent) 7%, transparent), transparent 48%),
+    rgba(14, 23, 33, 0.88);
+}
+
+.broker-dashboard-title-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.broker-dashboard-marker {
+  width: 7px;
+  height: 22px;
+  flex: 0 0 auto;
+  border-radius: 3px;
+  background: var(--broker-accent);
+  box-shadow: 0 0 13px color-mix(in srgb, var(--broker-accent) 45%, transparent);
+}
+
+.broker-dashboard-identity h3 {
+  margin: 0;
+  color: #e1e9f1;
+  font-size: 0.85rem;
+  font-weight: 720;
+}
+
+.broker-dashboard-identity p {
+  margin: 4px 0 0 16px;
+  color: var(--muted-2);
+  font-size: 0.63rem;
+}
+
+.broker-dashboard-connection {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.broker-dashboard-connection code {
+  overflow: hidden;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.61rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.broker-activity-badge,
+.telemetry-card-activity {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted-2);
+  background: rgba(130, 146, 166, 0.06);
+  font-size: 0.55rem;
+  font-weight: 750;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+
+.broker-activity-badge {
+  min-width: 76px;
+  min-height: 27px;
+  gap: 6px;
+  padding: 0 9px;
+}
+
+.broker-activity-badge .status-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--red);
+  box-shadow: none;
+}
+
+.broker-activity-badge.is-idle {
+  border-color: rgba(241, 186, 82, 0.2);
+  color: #d9b66e;
+  background: rgba(241, 186, 82, 0.06);
+}
+
+.broker-activity-badge.is-idle .status-dot {
+  background: var(--amber);
+}
+
+.broker-activity-badge.is-live {
+  border-color: rgba(54, 209, 125, 0.22);
+  color: #84dfaa;
+  background: rgba(54, 209, 125, 0.07);
+}
+
+.broker-activity-badge.is-live .status-dot {
+  background: var(--green);
+  box-shadow: 0 0 7px rgba(54, 209, 125, 0.5);
+}
+
+.broker-dashboard-counters {
+  display: flex;
+  justify-content: flex-end;
+  gap: 18px;
+}
+
+.broker-dashboard-counters > div {
+  min-width: 70px;
+}
+
+.broker-dashboard-counters span {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--muted-2);
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.065em;
+  text-transform: uppercase;
+}
+
+.broker-dashboard-counters strong {
+  display: block;
+  color: #c8d3de;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.broker-card-grid {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+}
+
+.broker-card-grid-hivemq {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.broker-card-grid-emqx {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.broker-card-grid-emqx [data-dashboard-card="router"],
+.broker-card-grid-emqx [data-dashboard-card="accessPoint"] {
+  grid-column: span 2;
+}
+
+.broker-card-grid-emqx [data-dashboard-card="emqxLogs"] {
+  grid-column: span 3;
+}
+
+.broker-card-grid-local {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.broker-card-grid-local [data-dashboard-card="power"] {
+  grid-column: span 2;
+}
+
+.broker-card-grid-local [data-dashboard-card="localLogs"] {
+  grid-column: span 3;
+}
+
+.telemetry-card {
+  --card-accent: var(--cyan);
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--card-accent) 25%, var(--border));
+  border-radius: 9px;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--card-accent) 3%, transparent), transparent 48%),
+    #0e1721;
+}
+
+.telemetry-card-cyan { --card-accent: var(--cyan); }
+.telemetry-card-magenta { --card-accent: #d782ff; }
+.telemetry-card-green { --card-accent: var(--green); }
+.telemetry-card-amber { --card-accent: var(--amber); }
+.telemetry-card-red { --card-accent: var(--red); }
+.telemetry-card-slate { --card-accent: #8fa5ba; }
+
+.telemetry-card-header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  min-height: 59px;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  border-bottom: 1px solid color-mix(in srgb, var(--card-accent) 16%, var(--border-soft));
+  background: color-mix(in srgb, var(--card-accent) 3%, rgba(8, 13, 20, 0.35));
+}
+
+.telemetry-card-icon {
+  display: grid;
+  width: 31px;
+  height: 31px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--card-accent) 36%, transparent);
+  border-radius: 7px;
+  color: var(--card-accent);
+  background: color-mix(in srgb, var(--card-accent) 9%, transparent);
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  font-weight: 800;
+}
+
+.telemetry-card-identity {
+  min-width: 0;
+}
+
+.telemetry-card-identity h4 {
+  overflow: hidden;
+  margin: 0 0 4px;
+  color: #dce5ed;
+  font-size: 0.73rem;
+  font-weight: 720;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.telemetry-card-identity code {
+  display: block;
+  overflow: hidden;
+  color: var(--muted-2);
+  font-family: var(--mono);
+  font-size: 0.5rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.telemetry-card-activity {
+  min-height: 23px;
+  padding: 0 7px;
+}
+
+.telemetry-card-activity.is-live {
+  border-color: rgba(54, 209, 125, 0.2);
+  color: #77dca1;
+  background: rgba(54, 209, 125, 0.07);
+}
+
+.telemetry-card-body {
+  min-height: 253px;
+  padding: 8px 11px 10px;
+}
+
+.telemetry-device-identity {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 1px 10px;
+}
+
+.telemetry-device-identity strong {
+  overflow: hidden;
+  color: var(--card-accent);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.telemetry-device-identity span {
+  overflow: hidden;
+  color: var(--muted-2);
+  font-family: var(--mono);
+  font-size: 0.52rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.telemetry-metric-row {
+  display: grid;
+  grid-template-columns: minmax(82px, 0.8fr) minmax(115px, 1.2fr);
+  min-height: 28px;
+  align-items: center;
+  gap: 10px;
+  border-top: 1px solid rgba(34, 49, 66, 0.52);
+}
+
+.telemetry-metric-label {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.56rem;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.telemetry-metric-value {
+  min-width: 0;
+  color: #d4dee7;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  text-align: right;
+}
+
+.telemetry-value {
+  white-space: nowrap;
+}
+
+.tone-default { color: #d4dee7; }
+.tone-muted { color: var(--muted-2); }
+.tone-good { color: var(--green); }
+.tone-warn { color: var(--amber); }
+.tone-bad { color: var(--red); }
+
+.telemetry-gauge {
+  display: grid;
+  grid-template-columns: minmax(45px, 1fr) 45px;
+  align-items: center;
+  gap: 8px;
+}
+
+.telemetry-gauge-track {
+  height: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #1b2937;
+}
+
+.telemetry-gauge-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: currentColor;
+  box-shadow: 0 0 7px currentColor;
+}
+
+.telemetry-signal,
+.telemetry-throughput {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.telemetry-signal-bars {
+  display: flex;
+  height: 14px;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.telemetry-signal-bars i {
+  display: block;
+  width: 3px;
+  height: 25%;
+  border: 1px solid currentColor;
+  border-radius: 1px;
+  opacity: 0.35;
+}
+
+.telemetry-signal-bars i:nth-child(2) { height: 40%; }
+.telemetry-signal-bars i:nth-child(3) { height: 60%; }
+.telemetry-signal-bars i:nth-child(4) { height: 80%; }
+.telemetry-signal-bars i:nth-child(5) { height: 100%; }
+
+.telemetry-signal-bars i.is-filled {
+  background: currentColor;
+  opacity: 1;
+}
+
+.telemetry-throughput .throughput-down { color: var(--green); }
+.telemetry-throughput .throughput-up { color: var(--blue); }
+.telemetry-throughput small { color: var(--muted-2); font-size: 0.5rem; }
+
+.telemetry-sparkline {
+  display: grid;
+  grid-template-columns: minmax(70px, 1fr) auto;
+  align-items: center;
+  gap: 7px;
+  color: var(--card-accent);
+}
+
+.telemetry-sparkline svg {
+  width: 100%;
+  height: 25px;
+  overflow: visible;
+}
+
+.telemetry-sparkline polyline {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+  vector-effect: non-scaling-stroke;
+}
+
+.telemetry-sparkline > span {
+  color: #cbd7e1;
+  font-size: 0.56rem;
+}
+
+.telemetry-card-footer {
+  padding-top: 7px;
+  color: var(--muted-2);
+  font-size: 0.5rem;
+  text-align: right;
+}
+
+.telemetry-waiting {
+  display: flex;
+  min-height: 235px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 7px;
+  text-align: center;
+}
+
+.telemetry-waiting > span {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--card-accent) 25%, var(--border));
+  border-radius: 50%;
+  color: var(--card-accent);
+  background: color-mix(in srgb, var(--card-accent) 6%, transparent);
+  font-size: 1.25rem;
+}
+
+.telemetry-waiting strong {
+  color: #aab8c5;
+  font-size: 0.66rem;
+  font-weight: 650;
+}
+
+.telemetry-waiting code {
+  display: block;
+  max-width: 92%;
+  overflow: hidden;
+  color: var(--muted-2);
+  font-family: var(--mono);
+  font-size: 0.52rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.telemetry-card-log .telemetry-card-body {
+  min-height: 253px;
+  padding: 5px 10px;
+}
+
+.telemetry-log-list {
+  font-family: var(--mono);
+}
+
+.telemetry-log-row {
+  display: grid;
+  grid-template-columns: 55px 34px minmax(0, 1fr);
+  min-height: 30px;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid rgba(34, 49, 66, 0.5);
+  font-size: 0.56rem;
+}
+
+.telemetry-log-row:last-child {
+  border-bottom: 0;
+}
+
+.telemetry-log-row time {
+  color: var(--muted-2);
+}
+
+.telemetry-log-severity {
+  font-weight: 750;
+}
+
+.severity-info { color: var(--green); }
+.severity-warn { color: var(--amber); }
+.severity-err { color: var(--red); }
+.severity-ext { color: var(--cyan); }
+
+.telemetry-log-message {
+  overflow: hidden;
+  color: #abb9c6;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 1180px) {
+  .broker-dashboard-header {
+    grid-template-columns: minmax(210px, 1fr) minmax(220px, 1fr);
+  }
+
+  .broker-dashboard-counters {
+    display: none;
+  }
+
+  .broker-card-grid-emqx,
+  .broker-card-grid-local {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .broker-card-grid-emqx [data-dashboard-card="router"],
+  .broker-card-grid-emqx [data-dashboard-card="accessPoint"],
+  .broker-card-grid-local [data-dashboard-card="power"] {
+    grid-column: span 1;
+  }
+
+  .broker-card-grid-emqx [data-dashboard-card="emqxLogs"],
+  .broker-card-grid-local [data-dashboard-card="localLogs"] {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 720px) {
+  .curated-dashboard-heading .dashboard-live-summary {
+    align-self: flex-start;
+    white-space: normal;
+  }
+
+  .tri-dashboard-root {
+    gap: 10px;
+    padding: 9px;
+  }
+
+  .broker-dashboard-header {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .broker-dashboard-connection {
+    justify-content: space-between;
+  }
+
+  .broker-dashboard-connection code {
+    max-width: 65%;
+  }
+
+  .broker-card-grid-hivemq,
+  .broker-card-grid-emqx,
+  .broker-card-grid-local {
+    grid-template-columns: 1fr;
+  }
+
+  .broker-card-grid-emqx [data-dashboard-card="emqxLogs"],
+  .broker-card-grid-local [data-dashboard-card="localLogs"] {
+    grid-column: span 1;
+  }
+}
